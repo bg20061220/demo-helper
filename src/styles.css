@@ -167,3 +167,65 @@ input.password:focus { outline: none; border-color: #6366f1; }
   border-left: 2px solid #6366f1;
   padding-left: 10px;
 }
+
+body.viewer-theme {
+  background: #c5d8f5;
+  color: #1a2040;
+}
+
+body.viewer-theme .h1,
+body.viewer-theme .h2 { color: #1a2040; }
+body.viewer-theme .muted { color: #4a5570; }
+body.viewer-theme .progress { color: #4a5570; }
+body.viewer-theme .section-title { color: #4a5570; }
+
+body.viewer-theme .card {
+  background: #1a2040;
+  border: 1px solid #2e3447;
+  color: #ffffff;
+  box-shadow: 0 8px 32px rgba(26, 32, 64, 0.25);
+}
+body.viewer-theme .card .h1,
+body.viewer-theme .card .h2 { color: #ffffff; }
+body.viewer-theme .card .muted { color: #a0a8bf; }
+
+body.viewer-theme .company { color: #d5e3f7; }
+body.viewer-theme .oneLiner { color: #e8edf7; }
+
+body.viewer-theme .btn-like {
+  background: #c5d8f5;
+  color: #1a2040;
+}
+body.viewer-theme .btn-like.active {
+  background: #c5d8f5;
+  color: #1a2040;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.7);
+}
+
+body.viewer-theme .btn-pass {
+  background: #242938;
+  color: #ffffff;
+}
+body.viewer-theme .btn-pass.active {
+  background: #242938;
+  color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.6);
+}
+
+body.viewer-theme textarea.note {
+  background: #242938;
+  border-color: #2e3447;
+  color: #ffffff;
+}
+body.viewer-theme textarea.note:focus { border-color: #c5d8f5; }
+
+body.viewer-theme .result-item {
+  background: #1a2040;
+  border-color: #2e3447;
+  color: #ffffff;
+}
+body.viewer-theme .result-item .muted { color: #a0a8bf; }
+body.viewer-theme .result-note {
+  border-left-color: #c5d8f5;
+  color: #e8edf7;
+}

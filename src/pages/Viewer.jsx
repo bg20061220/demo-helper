@@ -37,6 +37,11 @@ export default function Viewer() {
   const [error, setError] = useState(null)
 
   useEffect(() => {
+    document.body.classList.add('viewer-theme')
+    return () => document.body.classList.remove('viewer-theme')
+  }, [])
+
+  useEffect(() => {
     if (!isConfigured) {
       setError('Firebase is not configured. Copy .env.example to .env and fill in your project credentials.')
       return
@@ -73,9 +78,10 @@ export default function Viewer() {
     })
   }, [])
 
-  const setReaction = (kind) => {
+  const toggleLike = () => {
     if (!current) return
-    updateReaction(current.id, { reaction: kind })
+    const cur = reactions[current.id]?.reaction
+    updateReaction(current.id, { reaction: cur === 'like' ? null : 'like' })
   }
 
   useEffect(() => {
@@ -152,16 +158,10 @@ export default function Viewer() {
 
         <div className="actions">
           <button
-            className={`btn btn-pass ${reaction?.reaction === 'pass' ? 'active' : ''}`}
-            onClick={() => setReaction('pass')}
-          >
-            Pass
-          </button>
-          <button
             className={`btn btn-like ${reaction?.reaction === 'like' ? 'active' : ''}`}
-            onClick={() => setReaction('like')}
+            onClick={toggleLike}
           >
-            Like
+            {reaction?.reaction === 'like' ? 'Liked' : 'Like'}
           </button>
         </div>
 

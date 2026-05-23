@@ -3,7 +3,7 @@ import { onSnapshot, setDoc, collection, query, where } from 'firebase/firestore
 import { db, isConfigured, sessionDoc } from '../firebase'
 import { demos } from '../data/demos'
 
-const PASSWORD = 'admin123'
+const PASSWORD = 'monte@1098'
 const AUTH_KEY = 'demo-helper:admin'
 
 export default function Admin() {
