@@ -1,10 +1,12 @@
 import { useEffect, useState, useCallback } from 'react'
-import { onSnapshot } from 'firebase/firestore'
+import { onSnapshot, doc, writeBatch, serverTimestamp } from 'firebase/firestore'
 import { db, isConfigured, sessionDoc } from '../firebase'
 import { demos } from '../data/demos'
 
 const STORAGE_KEY = 'demo-helper:reactions'
 const SESSION_KEY = 'demo-helper:sessionId'
+const SYNCED_KEY = 'demo-helper:syncedSessionId'
+const USER_KEY = 'demo-helper:userId'
 
 function loadReactions() {
   try {
@@ -16,6 +18,17 @@ function loadReactions() {
 
 function saveReactions(r) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(r))
+}
+
+function getUserId() {
+  let id = localStorage.getItem(USER_KEY)
+  if (!id) {
+    id = (typeof crypto !== 'undefined' && crypto.randomUUID)
+      ? crypto.randomUUID()
+      : Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2) + Date.now().toString(36)
+    localStorage.setItem(USER_KEY, id)
+  }
+  return id
 }
 
 export default function Viewer() {
@@ -64,6 +77,32 @@ export default function Viewer() {
     if (!current) return
     updateReaction(current.id, { reaction: kind })
   }
+
+  useEffect(() => {
+    if (!isConfigured) return
+    if (index == null || index < demos.length) return
+    const sessionId = localStorage.getItem(SESSION_KEY)
+    if (!sessionId) return
+    if (localStorage.getItem(SYNCED_KEY) === sessionId) return
+
+    const likedIndexes = demos
+      .map((d, i) => (reactions[d.id]?.reaction === 'like' ? i : -1))
+      .filter((i) => i >= 0)
+
+    localStorage.setItem(SYNCED_KEY, sessionId)
+    if (likedIndexes.length === 0) return
+
+    const userId = getUserId()
+    const batch = writeBatch(db)
+    for (const demoIndex of likedIndexes) {
+      const ref = doc(db, 'likes', `${sessionId}_${userId}_${demoIndex}`)
+      batch.set(ref, { userId, demoIndex, sessionId, timestamp: serverTimestamp() })
+    }
+    batch.commit().catch((e) => {
+      localStorage.removeItem(SYNCED_KEY)
+      console.error('Failed to sync likes:', e)
+    })
+  }, [index, reactions])
 
   if (error) {
     return (

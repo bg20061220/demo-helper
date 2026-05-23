@@ -85,6 +85,22 @@ body {
 }
 .section-title:first-of-type { margin-top: 8px; }
 
+.leaderboard { display: flex; flex-direction: column; gap: 8px; }
+.leaderboard-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: #131313;
+  border: 1px solid #2a2a2a;
+  border-radius: 10px;
+}
+.lb-rank { font-weight: 700; color: #818cf8; min-width: 32px; }
+.lb-info { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.lb-company { font-weight: 600; }
+.lb-name { font-size: 0.85rem; }
+.lb-count { font-weight: 700; font-size: 1.15rem; color: #10b981; min-width: 32px; text-align: right; }
+
 textarea.note {
   width: 100%;
   margin-top: 16px;
