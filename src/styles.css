@@ -70,10 +70,20 @@ body {
 .btn:active { transform: scale(0.97); }
 .btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-.btn-like { background: #10b981; color: #03261b; }
-.btn-like.active { background: #34d399; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3); }
+.btn-like { background: #262626; color: #f5f5f5; }
+.btn-like.active { background: #10b981; color: #03261b; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3); }
 .btn-pass { background: #262626; color: #f5f5f5; }
 .btn-pass.active { background: #ef4444; color: #fff; box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.3); }
+
+.section-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 24px 0 10px;
+}
+.section-title:first-of-type { margin-top: 8px; }
 
 textarea.note {
   width: 100%;

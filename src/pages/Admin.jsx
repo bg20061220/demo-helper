@@ -36,7 +36,7 @@ export default function Admin() {
               autoFocus
             />
             {error && <div className="muted" style={{ color: '#ef4444', marginTop: 8 }}>{error}</div>}
-            <button type="submit" className="btn btn-like" style={{ marginTop: 16, width: '100%' }}>
+            <button type="submit" className="btn btn-like active" style={{ marginTop: 16, width: '100%' }}>
               Unlock
             </button>
           </form>
@@ -65,9 +65,18 @@ function AdminPanel() {
     return unsub
   }, [])
 
-  const setTo = async (next) => {
+  const advance = async (next) => {
     try {
-      await setDoc(sessionDoc(), { index: next })
+      await setDoc(sessionDoc(), { index: next }, { merge: true })
+    } catch (e) {
+      setError(e.message)
+    }
+  }
+
+  const startFresh = async (next) => {
+    try {
+      const sessionId = Math.random().toString(36).slice(2) + Date.now().toString(36)
+      await setDoc(sessionDoc(), { index: next, sessionId })
     } catch (e) {
       setError(e.message)
     }
@@ -105,7 +114,7 @@ function AdminPanel() {
           <>
             <div className="h1">Ready to begin?</div>
             <p className="muted">Tap Start to push the first demo to viewers.</p>
-            <button className="btn btn-like" style={{ width: '100%', marginTop: 16 }} onClick={() => setTo(0)}>
+            <button className="btn btn-like active" style={{ width: '100%', marginTop: 16 }} onClick={() => startFresh(0)}>
               Start session
             </button>
           </>
@@ -117,10 +126,10 @@ function AdminPanel() {
             <div className="name">{current.name}</div>
             <div className="oneLiner">{current.oneLiner}</div>
             <div className="admin-controls">
-              <button className="btn btn-pass" onClick={() => setTo(index - 1)} disabled={index === 0}>
+              <button className="btn btn-pass" onClick={() => advance(index - 1)} disabled={index === 0}>
                 ← Prev
               </button>
-              <button className="btn btn-like" onClick={() => setTo(index + 1)}>
+              <button className="btn btn-like active" onClick={() => advance(index + 1)}>
                 {index === demos.length - 1 ? 'Finish →' : 'Next →'}
               </button>
             </div>
@@ -132,10 +141,10 @@ function AdminPanel() {
             <div className="h1">All done</div>
             <p className="muted">Viewers are now seeing their results screen.</p>
             <div className="admin-controls">
-              <button className="btn btn-pass" onClick={() => setTo(demos.length - 1)}>
+              <button className="btn btn-pass" onClick={() => advance(demos.length - 1)}>
                 ← Back to last
               </button>
-              <button className="btn btn-like" onClick={() => setTo(-1)}>
+              <button className="btn btn-like active" onClick={() => startFresh(-1)}>
                 Reset
               </button>
             </div>

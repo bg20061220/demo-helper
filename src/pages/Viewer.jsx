@@ -4,6 +4,7 @@ import { db, isConfigured, sessionDoc } from '../firebase'
 import { demos } from '../data/demos'
 
 const STORAGE_KEY = 'demo-helper:reactions'
+const SESSION_KEY = 'demo-helper:sessionId'
 
 function loadReactions() {
   try {
@@ -30,8 +31,18 @@ export default function Viewer() {
     const unsub = onSnapshot(
       sessionDoc(),
       (snap) => {
-        if (!snap.exists()) setIndex(-1)
-        else setIndex(snap.data().index ?? -1)
+        if (!snap.exists()) {
+          setIndex(-1)
+          return
+        }
+        const data = snap.data()
+        const remoteSessionId = data.sessionId
+        if (remoteSessionId && remoteSessionId !== localStorage.getItem(SESSION_KEY)) {
+          localStorage.setItem(SESSION_KEY, remoteSessionId)
+          localStorage.removeItem(STORAGE_KEY)
+          setReactions({})
+        }
+        setIndex(data.index ?? -1)
       },
       (err) => setError(err.message)
     )
@@ -49,10 +60,9 @@ export default function Viewer() {
     })
   }, [])
 
-  const toggle = (kind) => {
+  const setReaction = (kind) => {
     if (!current) return
-    const currentReaction = reactions[current.id]?.reaction
-    updateReaction(current.id, { reaction: currentReaction === kind ? null : kind })
+    updateReaction(current.id, { reaction: kind })
   }
 
   if (error) {
@@ -104,13 +114,13 @@ export default function Viewer() {
         <div className="actions">
           <button
             className={`btn btn-pass ${reaction?.reaction === 'pass' ? 'active' : ''}`}
-            onClick={() => toggle('pass')}
+            onClick={() => setReaction('pass')}
           >
             Pass
           </button>
           <button
             className={`btn btn-like ${reaction?.reaction === 'like' ? 'active' : ''}`}
-            onClick={() => toggle('like')}
+            onClick={() => setReaction('like')}
           >
             Like
           </button>
@@ -129,28 +139,55 @@ export default function Viewer() {
 
 function Results({ reactions }) {
   const liked = demos.filter((d) => reactions[d.id]?.reaction === 'like')
+  const noted = demos.filter((d) => {
+    const r = reactions[d.id]
+    return r?.note?.trim() && r.reaction !== 'like'
+  })
+
+  const empty = liked.length === 0 && noted.length === 0
 
   return (
     <div className="shell">
       <h1 className="h1">Your picks</h1>
-      <p className="muted" style={{ marginTop: 0, marginBottom: 16 }}>
-        {liked.length === 0
-          ? 'You didn’t like any demos.'
-          : `${liked.length} demo${liked.length === 1 ? '' : 's'} you want to remember.`}
-      </p>
+      {empty && (
+        <p className="muted" style={{ marginTop: 0 }}>
+          You didn’t like or take notes on any demos.
+        </p>
+      )}
 
-      <div className="results-list">
-        {liked.map((d) => (
-          <div key={d.id} className="result-item">
-            <div className="company">{d.company}</div>
-            <div className="h2" style={{ marginTop: 4 }}>{d.name}</div>
-            <div className="muted" style={{ marginTop: 4 }}>{d.oneLiner}</div>
-            {reactions[d.id]?.note && (
-              <div className="result-note">“{reactions[d.id].note}”</div>
-            )}
+      {liked.length > 0 && (
+        <>
+          <div className="section-title">Your likes ({liked.length})</div>
+          <div className="results-list">
+            {liked.map((d) => (
+              <div key={d.id} className="result-item">
+                <div className="company">{d.company}</div>
+                <div className="h2" style={{ marginTop: 4 }}>{d.name}</div>
+                <div className="muted" style={{ marginTop: 4 }}>{d.oneLiner}</div>
+                {reactions[d.id]?.note && (
+                  <div className="result-note">“{reactions[d.id].note}”</div>
+                )}
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </>
+      )}
+
+      {noted.length > 0 && (
+        <>
+          <div className="section-title">Your notes ({noted.length})</div>
+          <div className="results-list">
+            {noted.map((d) => (
+              <div key={d.id} className="result-item">
+                <div className="company">{d.company}</div>
+                <div className="h2" style={{ marginTop: 4 }}>{d.name}</div>
+                <div className="muted" style={{ marginTop: 4 }}>{d.oneLiner}</div>
+                <div className="result-note">“{reactions[d.id].note}”</div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   )
 }
